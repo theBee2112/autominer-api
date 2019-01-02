@@ -918,9 +918,8 @@ function rentIfYouCan() {
 	getLastRentalTimestamp(function(timestamp){
 		var nowTime = parseInt((new Date).getTime()/1000);
 		var rentalPeriodSeconds = settings.rental_length_hrs * 60 * 60;
-
 		// This is the time stamp -x hours ago from now
-		var lastRentalLatestPossible = nowTime - rentalPeriodSeconds;
+		var lastRentalLatestPossible = nowTime;
 		// If we have not rented in more than our rental period (i.e. our last machine should now be expiring)
 		if (timestamp <= lastRentalLatestPossible){
 			logWaiting = false;
