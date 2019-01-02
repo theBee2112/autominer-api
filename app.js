@@ -953,12 +953,12 @@ function startup (){
 		// Initially update endpoint data on startup
 		updateEnpointData();
 		// 								 minutes * seconds * ms
-		var endpoint = setInterval(updateEnpointData, 15 * 60 * 1000);
+		var endpoint = setInterval(updateEnpointData, 8 * 60 * 1000);
 
 		// After 10 seconds, rent the first batch of rigs, then every x amount of hours after that attempt to rent again.
 		setTimeout(rentIfYouCan, 10 * 1000);
 		// Run the rental checker every 5 minutes to make sure that we always rent if we can.
-		var rentals = setInterval(rentIfYouCan, 5 * 60 * 1000);
+		var rentals = setInterval(rentIfYouCan, 0 * 1 * 1000);
 		// settings.rental_length_hrs * 60 * 60 * 1000
 	})
 }
