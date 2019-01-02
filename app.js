@@ -34,14 +34,14 @@ db.serialize(function () {
 var calculations = {
 	'status': "Starting up...",
 	'pool_max_margin': 20,
-	'flo_difficulty': 0,
+	'eth_difficulty': 0,
 	'pool_hashrate': 0,
 	'fbd_networkhashps': 0,
 	'MiningRigRentals_last10': 0,
 	'fmd_weighted_btc': 0,
 	'fmd_weighted_usd': 0,
-	'flo_spotcost_btc': 0,
-	'flo_spotcost_usd': 0,
+	'eth_spotcost_btc': 0,
+	'eth_spotcost_usd': 0,
 	'pool_influence': 0,
 	'pool_influence_code': -1,
 	'pool_influence_multiplier': -1,
@@ -82,8 +82,8 @@ app.get('/info', function (req, res) {
 	}
 	var pretty = calculations
 	pretty['pool_hashrate'] = parseFloat(pretty['pool_hashrate'].toFixed(0))
-	pretty['flo_spotcost_btc'] = parseFloat(pretty['flo_spotcost_btc'].toFixed(8))
-	pretty['flo_spotcost_usd'] = parseFloat(pretty['flo_spotcost_usd'].toFixed(8))
+	pretty['eth_spotcost_btc'] = parseFloat(pretty['eth_spotcost_btc'].toFixed(8))
+	pretty['eth_spotcost_usd'] = parseFloat(pretty['eth_spotcost_usd'].toFixed(8))
 	pretty['market_conditions'] = parseFloat(pretty['market_conditions'].toFixed(8))
 	pretty['offer_btc'] = parseFloat(pretty['offer_btc'].toFixed(8))
 
@@ -249,15 +249,15 @@ app.post('/rentals', function (req, res) {
 	}
 })
 
-var alexandriaPool = false
-var florincoinInfo = false
+var etherminePool = false
+var etheriumInfo = false
 var miningRigs = false
 var libraryd = false
 
 function updateEnpointData () {
 	// Request data async from each endpoint. When all four have been queried then update the calculations.
-	alexandriaPool = false
-	florincoinInfo = false
+	etherminePool = false
+	etheriumInfo = false
 	miningRigs = false
 	libraryd = false
 
@@ -267,7 +267,7 @@ function updateEnpointData () {
 
 	updateMiningInfo();
 
-	updateFloMarketData();
+	updateEthMarketData();
 
 	updateBalance();
 
@@ -279,48 +279,56 @@ function updateEnpointData () {
 }
 
 function updatePoolStats(){
-	request('https://api.alexandria.io/pool/api/stats', function (error, response, body) {
+	request('https://api.ethermine.org/poolStats', function (error, response, body) {
 		if (!error && response.statusCode === 200) {
-			calculations['pool_hashrate'] = JSON.parse(body)['pools']['florincoin']['hashrate']
-			alexandriaPool = true
-			if (alexandriaPool && florincoinInfo && miningRigs && libraryd)
+			calculations['pool_hashrate'] = JSON.parse(body)['data']['poolStats']['hashRate']
+			etherminePool = true
+			if (etherminePool && etheriumInfo && miningRigs && libraryd)
 				doneUpdatingEndpoints()
 		} else {
-			logError('Error getting data from https://api.alexandria.io/pool/api/stats', error + '\n' + response + '\n' + body)
+			logError('https://api.ethermine.org/poolStats', error + '\n' + response + '\n' + body)
 			updatePoolStats()
 		}
 	})
 }
 
 function updateMiningInfo(){
-	request('https://snowflake.oip.fun/alexandria/v2/getMiningInfo', function (error, response, body) {
+	request('https://api.ethermine.org/networkStats', function (error, response, body) {
 		if (!error && response.statusCode === 200) {
-			calculations['fbd_networkhashps'] = JSON.parse(body)['networkhashps']
-			calculations['flo_difficulty'] = JSON.parse(body)['difficulty']
-			florincoinInfo = true
-			if (alexandriaPool && florincoinInfo && miningRigs && libraryd)
+			calculations['fbd_networkhashps'] = JSON.parse(body)['data']['hashrate']
+			calculations['eth_difficulty'] = JSON.parse(body)['data']['difficulty']
+			calculations['fmd_weighted_usd'] = parseFloat(JSON.parse(body)['data']['usd'])
+			calculations['fmd_weighted_btc'] = parseFloat(JSON.parse(body)['data']['btc'])
+			etheriumInfo = true
+			if (etherminePool && etheriumInfo && miningRigs && libraryd)
 				doneUpdatingEndpoints()
 		} else {
-			logError('Error getting data from https://api.alexandria.io/florincoin/getMiningInfo', error + '\n' + response + '\n' + body)
+			logError('Error getting data from https://api.ethermine.org/networkStats', error + '\n' + response + '\n' + body)
 			updateMiningInfo();
 		}
 	})
 }
 
-function updateFloMarketData(){
-	request('https://api.alexandria.io/flo-market-data/v1/getAll', function (error, response, body) {
+function updateEthMarketData(){
+
+	request('https://api.ethermine.org/networkStats', function (error, response, body) {
 		if (!error && response.statusCode === 200) {
-			calculations['fmd_weighted_btc'] = parseFloat(JSON.parse(body)['weighted'])
-			calculations['fmd_weighted_usd'] = parseFloat(JSON.parse(body)['USD'])
+			calculations['fmd_weighted_usd'] = parseFloat(JSON.parse(body)['data']['usd'])
+			calculations['fmd_weighted_btc'] = parseFloat(JSON.parse(body)['data']['btc'])
 			libraryd = true
-			if (alexandriaPool && florincoinInfo && miningRigs && libraryd)
+			if (etherminePool && etheriumInfo && miningRigs && libraryd)
 				doneUpdatingEndpoints()
 		} else {
-			logError('Error getting data from https://api.alexandria.io/flo-market-data/v1/getAll', error + '\n' + response + '\n' + body)
-			updateFloMarketData()
+			logError('Error getting data from https://api.ethermine.org/networkStats', error + '\n' + response + '\n' + body)
+			updateEthMarketData()
 		}
-	})
-}
+})
+
+
+} //END OF FUNCTION
+
+
+
 
 function updateRentals(){
 	// List the rentals and log that
@@ -398,7 +406,7 @@ function updateBalance(callback) {
 
 function getRigList (args, callback){
 	if (!args){
-		args = {type: 'scrypt'};
+		args = {type: 'hashimotos'};
 	}
 	if (!callback){
 		callback = function(){}
@@ -420,7 +428,7 @@ function getRigList (args, callback){
 		if (body['success']) {
 			calculations['MiningRigRentals_last10'] = parseFloat(body['data']['info']['price']['last_10'])
 			miningRigs = true
-			if (alexandriaPool && florincoinInfo && miningRigs && libraryd){
+			if (etherminePool && etheriumInfo && miningRigs && libraryd){
 				doneUpdatingEndpoints()
 			}
 
@@ -439,12 +447,12 @@ function doneUpdatingEndpoints () {
 }
 
 function updateCalculations () {
-	var FLO_reward = 12.5; // Next to change ~9/1/18
+	var ETH_reward = 3; // Next to change ~1/17/2019
 
 	calculations['mining_cost_per_sec'] = calculations['MiningRigRentals_last10'] / ( 1000000 * 86400);
 
-	calculations['flo_spotcost_btc'] = (calculations['fbd_networkhashps'] * calculations['mining_cost_per_sec'] * 40) / FLO_reward;
-	calculations['flo_spotcost_usd'] = calculations['flo_spotcost_btc'] * calculations['fmd_weighted_usd'] / calculations['fmd_weighted_btc']
+	calculations['eth_spotcost_btc'] = (calculations['fbd_networkhashps'] * calculations['mining_cost_per_sec'] * 40) / ETH_reward;
+	calculations['eth_spotcost_usd'] = calculations['eth_spotcost_btc'] * calculations['fmd_weighted_usd'] / calculations['fmd_weighted_btc']
 	calculations['pool_influence'] = calculations['pool_hashrate'] / calculations['fbd_networkhashps'];
 
 	if (calculations['pool_influence'] <= 1) {
@@ -456,7 +464,7 @@ function updateCalculations () {
 		calculations['pool_influence_multiplier'] = 1 / (calculations['pool_influence'] * calculations['pool_influence'])
 	}
 
-	calculations['market_conditions'] = (((((calculations['pool_max_margin'] / 100) + 1) * calculations['flo_spotcost_btc']) - calculations['fmd_weighted_btc']) / calculations['fmd_weighted_btc'])
+	calculations['market_conditions'] = (((((calculations['pool_max_margin'] / 100) + 1) * calculations['eth_spotcost_btc']) - calculations['fmd_weighted_btc']) / calculations['fmd_weighted_btc'])
 
 	if (calculations['market_conditions'] <= 0) {
 		calculations['market_conditions_code'] = 0
@@ -469,7 +477,7 @@ function updateCalculations () {
 		calculations['market_conditions_multiplier'] = 0
 	}
 
-	calculations['offer_btc'] = calculations['flo_spotcost_btc'] * (1 + ((calculations['pool_max_margin'] / 100) * calculations['pool_influence_multiplier'] * calculations['market_conditions_multiplier'])) / calculations['fmd_weighted_btc'] * calculations['fmd_weighted_usd'];
+	calculations['offer_btc'] = calculations['eth_spotcost_btc'] * (1 + ((calculations['pool_max_margin'] / 100) * calculations['pool_influence_multiplier'] * calculations['market_conditions_multiplier'])) / calculations['fmd_weighted_btc'] * calculations['fmd_weighted_usd'];
 }
 
 function rentMiners () {
@@ -481,7 +489,7 @@ function rentMiners () {
 	}
 
 	// First search for rentals that are below the average price.
-	getRigList({type: 'scrypt'}, function (body) {
+	getRigList({type: 'hashimotos'}, function (body) {
 		log('info', 'Successfully got rig list')
 		var rigs = body['data']['records']
 		var goodRigs = []
@@ -918,7 +926,7 @@ function rentIfYouCan() {
 			logWaiting = false;
 
 			// Check to make sure that we are under the maximum difficulty right now
-			if (calculations['flo_difficulty'] > settings.max_difficulty){
+			if (calculations['eth_difficulty'] > settings.max_difficulty){
 				if (!logHighDiff){
 					calculations.status = "Difficulty too high... Waiting to rent rigs...";
 					console.log(calculations.status);
