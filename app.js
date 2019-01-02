@@ -573,8 +573,8 @@ function rentMiners () {
 			}
 
 			if (!rentedOne && minMultiplier != -1){
-				calculations.status = "Your MRR last 10 multiplier might be too low, please check it or update it to at least " + minMultiplier.toFixed(2) + " to continue renting rigs immediately, or wait for prices to lower.";
-				console.log("\x1b[31m" + calculations.status + "\x1b[0m");
+				calculations.status = "Waiting for rig prices to lower. Or Set mrr_last_10_max_multiplier to at least " + minMultiplier.toFixed(2) + " to rent rigs immediately.";
+				console.log("\x1b[35m" + calculations.status + "\x1b[0m");
 				log('status', calculations.status, '', 'rentals');
 				return;
 			}
@@ -693,8 +693,8 @@ function loadConfig (callback) {
 		} 
 
 		if (settings.MRR_API_key === 'sample-api-key' || settings.MRR_API_secret === 'sample-api-secret' || settings.profileid === -1) {
-			console.log('Welcome to the OIP Autominer!\n')
-			console.log('It looks like you have not yet setup the Autominer yet, please follow the directions found here: bit.ly/2rAVVVi\n\n')
+			console.log('Welcome to theBees ETH Autominer!\n')
+			console.log('It looks like you have not yet setup the Autominer yet, please follow the directions found here: https://github.com/theBee2112/autominer-api\n\n')
 
 			if (settings.MRR_API_key === 'sample-api-key') {
 				var api_key = readlineSync.question('Please enter your MiningRigRentals API Key: ')
@@ -731,10 +731,10 @@ function loadConfig (callback) {
 			}
 
 			console.log('Please enter the maximum difficulty at which you want to mine (Optional)')
-			var maxdiff = readlineSync.question('Please enter your Max Mining Difficulty (Optional, default is 3500): ')
+			var maxdiff = readlineSync.question('Please enter your Max Mining Difficulty (Optional, default is 3991710665603840): ')
 			if (maxdiff) {
 				if (isNaN(maxdiff)){
-					maxdiff = 3500;
+					maxdiff = 3991710665603840;
 				} else {
 					maxdiff = parseFloat(maxdiff);
 				}
@@ -927,7 +927,7 @@ function rentIfYouCan() {
 			// Check to make sure that we are under the maximum difficulty right now
 			if (calculations['eth_difficulty'] > settings.max_difficulty){
 				if (!logHighDiff){
-					calculations.status = "Difficulty too high... Waiting to rent rigs...";
+					calculations.status = "ETH Network Difficulty too high.. Wait for it to lower, or adjust max_difficulty setting";
 					console.log(calculations.status);
 					log('status', calculations.status, '', 'rentals');
 					logHighDiff = true;
@@ -953,7 +953,7 @@ function startup (){
 		// Initially update endpoint data on startup
 		updateEnpointData();
 		// 								 minutes * seconds * ms
-		var endpoint = setInterval(updateEnpointData, 15 * 60 * 1000);
+		var endpoint = setInterval(updateEnpointData, 2 * 60 * 1000);
 
 		// After 10 seconds, rent the first batch of rigs, then every x amount of hours after that attempt to rent again.
 		setTimeout(rentIfYouCan, 10 * 1000);
