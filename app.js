@@ -958,7 +958,7 @@ function startup (){
 		// After 10 seconds, rent the first batch of rigs, then every x amount of hours after that attempt to rent again.
 		setTimeout(rentIfYouCan, 10 * 1000);
 		// Run the rental checker every 5 minutes to make sure that we always rent if we can.
-		var rentals = setInterval(rentIfYouCan, 0 * 1 * 1000);
+		var rentals = setInterval(rentIfYouCan, 0.0333333333333334 * 1 * 1000);
 		// settings.rental_length_hrs * 60 * 60 * 1000
 	})
 }
