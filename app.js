@@ -37,7 +37,7 @@ var calculations = {
 	'eth_difficulty': 0,
 	'pool_hashrate': 0,
 	'fbd_networkhashps': 0,
-	'MiningRigRentals_last10': 0,
+	'MiningRigRentals_last10': 0.00000400,
 	'fmd_weighted_btc': 0,
 	'fmd_weighted_usd': 0,
 	'eth_spotcost_btc': 0,
@@ -427,6 +427,7 @@ function getRigList (args, callback){
 
 		if (body['success']) {
 			calculations['MiningRigRentals_last10'] = parseFloat(body['data']['info']['price']['last_10'])
+			calculations['MiningRigRentals_last10'] = 0.00000400
 			miningRigs = true
 			if (etherminePool && etheriumInfo && miningRigs && libraryd){
 				doneUpdatingEndpoints()
