@@ -937,14 +937,16 @@ function rentIfYouCan() {
 				logHighDiff = false;
 				rentMiners();
 			}
-		} else {
-			if (!logWaiting){
-				calculations.status = "Just rented a rig... Waiting for rental period to end..."; 
-				console.log("\x1b[33m" + calculations.status + "\x1b[0m");
-				log('status', calculations.status, '', 'rentals');
-				logWaiting = true;
-			}
-		}
+		} 
+		//else {
+			
+			//if (!logWaiting){
+				//calculations.status = "Just rented a rig... Waiting for rental period to end..."; 
+				//console.log("\x1b[33m" + calculations.status + "\x1b[0m");
+				//log('status', calculations.status, '', 'rentals');
+				//logWaiting = true;
+			//}
+			//}
 	});
 }
 
