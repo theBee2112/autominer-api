@@ -34,10 +34,10 @@ db.serialize(function () {
 var calculations = {
 	'status': "Starting up...",
 	'pool_max_margin': 20,
-	'eth_difficulty': 0,
+	'veil_difficulty': 0,
 	'pool_hashrate': 0,
 	'fbd_networkhashps': 0,
-	'MiningRigRentals_last10': 0.00000400,
+	'MiningRigRentals_last10': 0.00001399,
 	'fmd_weighted_btc': 0,
 	'fmd_weighted_usd': 0,
 	'eth_spotcost_btc': 0,
@@ -296,7 +296,7 @@ function updateMiningInfo(){
 	request('https://api.ethermine.org/networkStats', function (error, response, body) {
 		if (!error && response.statusCode === 200) {
 			calculations['fbd_networkhashps'] = JSON.parse(body)['data']['hashrate']
-			calculations['eth_difficulty'] = JSON.parse(body)['data']['difficulty']
+			calculations['veil_difficulty'] = JSON.parse(body)['data']['difficulty']
 			calculations['fmd_weighted_usd'] = parseFloat(JSON.parse(body)['data']['usd'])
 			calculations['fmd_weighted_btc'] = parseFloat(JSON.parse(body)['data']['btc'])
 			etheriumInfo = true
@@ -406,7 +406,7 @@ function updateBalance(callback) {
 
 function getRigList (args, callback){
 	if (!args){
-		args = {type: 'hashimotos'};
+		args = {type: 'x16rt'};
 	}
 	if (!callback){
 		callback = function(){}
@@ -427,7 +427,7 @@ function getRigList (args, callback){
 
 		if (body['success']) {
 			calculations['MiningRigRentals_last10'] = parseFloat(body['data']['info']['price']['last_10'])
-			calculations['MiningRigRentals_last10'] = 0.00000400
+			calculations['MiningRigRentals_last10'] = 0.00001399
 			miningRigs = true
 			if (etherminePool && etheriumInfo && miningRigs && libraryd){
 				doneUpdatingEndpoints()
@@ -490,7 +490,7 @@ function rentMiners () {
 	}
 
 	// First search for rentals that are below the average price.
-	getRigList({type: 'hashimotos'}, function (body) {
+	getRigList({type: 'x16rt'}, function (body) {
 		log('info', 'Successfully got rig list')
 		var rigs = body['data']['records']
 		var goodRigs = []
@@ -926,7 +926,7 @@ function rentIfYouCan() {
 			logWaiting = false;
 
 			// Check to make sure that we are under the maximum difficulty right now
-			if (calculations['eth_difficulty'] > settings.max_difficulty){
+			if (calculations['veil_difficulty'] > settings.max_difficulty){
 				if (!logHighDiff){
 					calculations.status = "ETH Network Difficulty too high.. Wait for it to lower, or adjust max_difficulty setting";
 					console.log(calculations.status);
